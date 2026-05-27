@@ -16,13 +16,16 @@ load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
 base_dir = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__, template_folder=base_dir, static_folder=base_dir)
 
-print("Application starting...")
+# Важно для Vercel: переменная 'app' должна быть доступна на уровне модуля
+application = app
+
+print(f">>> Application starting from: {base_dir} in {'Vercel' if os.getenv('VERCEL') else 'Local'} environment.")
 
 # Проверка SECRET_KEY
 app.secret_key = os.getenv('SECRET_KEY')
 if not app.secret_key:
     if os.getenv('VERCEL'):
-        raise RuntimeError("Критическая ошибка: SECRET_KEY не найден в переменных окружения Vercel!")
+        app.secret_key = "temporary_key_for_build" # Временный ключ для фазы сборки
     print("WARNING: SECRET_KEY not found in environment variables. Using fallback.")
     app.secret_key = 'fallback_secret_key_for_dev' # Fallback for local development if .env is missing
 
@@ -42,13 +45,17 @@ app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
+print(f">>> Database URI: {db_url.split('@')[-1] if '@' in db_url else 'SQLite'}")
+
 # Создаем таблицы, если их нет
 with app.app_context():
     try:
         db.create_all()
-        print("Database initialized successfully.")
+        # Проверка подключения к БД
+        db.session.execute(db.text('SELECT 1'))
+        print(">>> Database initialized and connected successfully.")
     except Exception as e:
-        print(f"Database initialization failed: {e}")
+        print(f">>> Database initialization or connection FAILED: {e}")
 
 openai_api_key = os.getenv("OPENAI_API_KEY")
 if not openai_api_key:

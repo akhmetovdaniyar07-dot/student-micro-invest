@@ -5,3 +5,7 @@ openai==1.3.0
 bcrypt==4.0.1
 SQLAlchemy==2.0.23
 psycopg2-binary==2.9.9
+psycopg2-binary
+bcrypt
+email_validator
+gunicorn

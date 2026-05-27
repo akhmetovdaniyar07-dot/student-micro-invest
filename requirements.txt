@@ -1,0 +1,8 @@
+flask
+flask-sqlalchemy
+python-dotenv
+openai
+psycopg2-binary
+bcrypt
+email_validator
+gunicorn

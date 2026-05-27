@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Чат - StudentInvest</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        :root { --primary: #000; --bg: #fff; --card-bg: #f8f9fa; --text: #000; --border: #e0e0e0; }
+        [data-theme="dark"] { --primary: #fff; --bg: #000; --card-bg: #111; --text: #fff; --border: #333; }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 1.1rem; height: 100vh; display: flex; flex-direction: column; }
+        .navbar { border-bottom: 1px solid var(--border); background: var(--bg); padding: 1rem 0; }
+        .chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; }
+        .message { margin-bottom: 20px; max-width: 80%; padding: 12px 18px; border-radius: 20px; position: relative; line-height: 1.5; }
+        .message.user { align-self: flex-end; background-color: var(--primary); color: var(--bg); border-bottom-right-radius: 4px; }
+        .message.bot { align-self: flex-start; background-color: var(--card-bg); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+        .chat-input-area { padding: 20px; border-top: 1px solid var(--border); background: var(--bg); }
+        .form-control { border-radius: 30px; padding: 10px 20px; border: 1px solid var(--border); }
+        .form-control:focus { box-shadow: none; border-color: var(--primary); }
+    </style>
+</head>
+<body data-theme="light">
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="font-weight: 900; color: #0052FF; letter-spacing: 1px; font-size: 2.25rem;">STUDENT.INVEST</a>
+            <div class="d-flex align-items-center">
+                <a href="/" class="nav-link me-3"><i class="bi bi-house"></i> Главная</a>
+                <a href="/messages" class="nav-link me-3"><i class="bi bi-chat-dots"></i> Сообщения</a>
+                <a href="/chat" class="nav-link me-3 active"><i class="bi bi-robot"></i> AI Чат</a>
+                <a href="/services" class="nav-link me-3"><i class="bi bi-grid"></i> Сервисы</a>
+                <a href="/leaderboard" class="nav-link me-3"><i class="bi bi-trophy"></i> Рейтинг</a>
+                <a href="/chat/clear" class="btn btn-sm text-muted me-2" title="Очистить чат"><i class="bi bi-trash"></i></a>
+                <a href="/logout" class="btn btn-sm btn-outline-dark">Выход</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="chat-container container" id="chatWindow">
+        {% if not chat_history %}
+        <div class="text-center mt-5 text-muted">
+            <div class="display-1 mb-3"><i class="bi bi-robot"></i></div>
+            <h4>Привет! Я твой AI-помощник</h4>
+            <p>Задай мне вопрос об инвестициях или своих расходах.</p>
+        </div>
+        {% endif %}
+        
+        {% for msg in chat_history %}
+        <div class="message {{ 'user' if msg.sender == 'user' else 'bot' }}">
+            {{ msg.text|safe }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="chat-input-area">
+        <div class="container">
+            <form action="/chat" method="post" class="d-flex align-items-center">
+                <input type="text" name="message" class="form-control me-2" placeholder="Напишите сообщение..." required autocomplete="off">
+                <button type="submit" class="btn btn-dark rounded-circle p-2 px-3">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const chatWindow = document.getElementById('chatWindow');
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.setAttribute('data-theme', 'dark');
+        }
+    </script>
+</body>
+</html>

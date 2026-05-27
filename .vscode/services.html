@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сервисы - StudentInvest</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        :root { 
+            --primary: #0052FF; --bg: #f8fafc; --card-bg: rgba(255, 255, 255, 0.8); 
+            --text: #0f172a; --border: #e2e8f0; 
+        }
+        [data-theme="dark"] { 
+            --primary: #3b82f6; --bg: #020617; --card-bg: rgba(30, 41, 59, 0.7); 
+            --text: #f1f5f9; --border: #1e293b; 
+        }
+        body { 
+            background-color: var(--bg); color: var(--text); font-size: 1.1rem;
+            font-family: 'Inter', sans-serif; transition: background-color 0.5s ease; 
+        }
+        .navbar { border-bottom: 1px solid var(--border); background: var(--bg); padding: 1rem 0; }
+        .glass-card {
+            background: var(--card-bg); border-radius: 24px;
+            border: 1px solid var(--border); padding: 24px;
+            margin-bottom: 24px; backdrop-filter: blur(12px);
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        .glass-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
+        .progress { height: 12px; border-radius: 20px; background: var(--border); overflow: hidden; }
+        .progress-bar { transition: width 1s ease; }
+        .btn-outline-dark { border-radius: 14px; border-width: 2px; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .animate-view { animation: fadeIn 0.8s ease-in-out; }
+    </style>
+</head>
+<body data-theme="light" class="animate-view">
+    <nav class="navbar navbar-expand-lg sticky-top mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="font-weight: 900; color: #0052FF; letter-spacing: 1px; font-size: 2.25rem;">STUDENT.INVEST</a>
+            <div class="d-flex align-items-center">
+                <a href="/" class="nav-link me-3"><i class="bi bi-house"></i> Главная</a>
+                <a href="/messages" class="nav-link me-3"><i class="bi bi-chat-dots"></i> Сообщения</a>
+                <a href="/chat" class="nav-link me-3"><i class="bi bi-robot"></i> AI Чат</a>
+                <a href="/services" class="nav-link me-3 active"><i class="bi bi-grid"></i> Сервисы</a>
+                <a href="/leaderboard" class="nav-link me-3"><i class="bi bi-trophy"></i> Рейтинг</a>
+                <a href="/logout" class="btn btn-sm btn-outline-dark">Выход</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <h2 class="fw-bold mb-4">Управление сервисами</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}{% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show mb-4" role="alert">
+              {{ message }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          {% endfor %}{% endif %}
+        {% endwith %}
+
+        <div class="row">
+            <!-- Инвестиции -->
+            <div class="col-md-6">
+                <div class="glass-card h-100">
+                    <h5><i class="bi bi-graph-up-arrow"></i> Режим инвестиций</h5>
+                    <p class="text-muted small">Выберите стратегию распределения прибыли</p>
+                    <form action="/change_mode" method="post">
+                        <select name="mode" class="form-select mb-3" onchange="this.form.submit()">
+                            <option value="conservative" {% if data.investment_mode == 'conservative' %}selected{% endif %}>Консервативный (0.5%)</option>
+                            <option value="moderate" {% if data.investment_mode == 'moderate' %}selected{% endif %}>Умеренный (1.0%)</option>
+                            <option value="aggressive" {% if data.investment_mode == 'aggressive' %}selected{% endif %}>Агрессивный (2.0%)</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+            <!-- Цель -->
+            <div class="col-md-6">
+                <div class="glass-card h-100">
+                    <h5><i class="bi bi-trophy"></i> Финансовая цель</h5>
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span>{{ goal.name }}</span><span>{{ "%.1f"|format(progress) }}%</span>
+                    </div>
+                    <div class="progress mb-3"><div class="progress-bar bg-info" style="width: {{ progress }}%"></div></div>
+                    <button class="btn btn-sm btn-dark w-100" data-bs-toggle="collapse" data-bs-target="#goalForm">Изменить</button>
+                    <div id="goalForm" class="collapse mt-3">
+                        <form action="/set_goal" method="post" class="row g-2">
+                            <div class="col-7"><input type="text" name="name" class="form-control" placeholder="Название" required></div>
+                            <div class="col-5"><input type="number" name="target" class="form-control" placeholder="Сумма" required></div>
+                            <button class="btn btn-primary btn-sm mt-2" type="submit">Сохранить цель</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <!-- Друзья -->
+            <div class="col-md-4">
+                <div class="glass-card">
+                    <h5><i class="bi bi-people"></i> Друзья ({{ data.friends|length }})</h5>
+                    <form action="/add_friend" method="post" class="input-group input-group-sm mb-2">
+                        <input type="text" name="friend_phone" class="form-control" placeholder="Телефон друга">
+                        <button class="btn btn-dark" type="submit">+</button>
+                    </form>
+                    <div class="small text-muted">Соревнуйтесь в накоплениях!</div>
+                </div>
+            </div>
+            <!-- Safe Mode -->
+            <div class="col-md-4">
+                <div class="glass-card">
+                    <h5><i class="bi bi-shield-shaded"></i> Safe Mode</h5>
+                    <p class="small text-muted">Снижение авто-инвестиций при низком балансе (< 2000 ₸)</p>
+                    <form action="/toggle_safe_mode" method="post">
+                        <button class="btn btn-{{ 'success' if data.safe_mode else 'outline-secondary' }} w-100">
+                            {{ 'АКТИВЕН' if data.safe_mode else 'ВЫКЛЮЧЕН' }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <!-- Бонусы -->
+            <div class="col-md-4">
+                <div class="glass-card">
+                    <h5><i class="bi bi-gift"></i> Бонусы</h5>
+                    <div class="small mb-2">🎁 Starbucks: 10% скидка</div>
+                    <button class="btn btn-sm btn-outline-primary w-100">Маркетплейс бонусов</button>
+                </div>
+            </div>
+        </div>
+
+        <footer class="py-4 mt-5 border-top">
+            <div class="container text-center">
+                <div class="row align-items-center">
+                    <div class="col-md-6 text-md-start">
+                        <span style="font-weight: 900; color: #0052FF; letter-spacing: 0.5px; font-size: 1.5rem;">STUDENT.INVEST</span>
+                        <p class="text-muted small mb-0">© 2024 Образовательный проект.</p>
+                    </div>
+                    <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                        <a href="#" class="text-muted me-3"><i class="bi bi-shield-lock"></i> Конфиденциальность</a>
+                        <a href="#" class="text-muted"><i class="bi bi-question-circle"></i> Помощь</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

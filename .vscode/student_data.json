@@ -1,0 +1,366 @@
+{
+    "Daniyar": {
+        "password": "scrypt:32768:8:1$H9niO86XE1TlvYuL$ffc4bf2524fb63ae0df2d5580d947275af05fe5f8035c24cc322e91cb1eb77746705219e16bd110e293578f31709c702241c64ef11a6f3e9c1c77d1343fab6b6",
+        "profile": {
+            "full_name": "dan",
+            "university": "korkyt",
+            "kyc_status": "Not Verified",
+            "phone": "",
+            "nickname": "Daniyar Akhmetov",
+            "address": "Жастар 11"
+        },
+        "finance": {
+            "balance": 8200.0,
+            "portfolio": 688911.8881542529,
+            "rounding_limit": 100,
+            "history": [
+                {
+                    "type": "auto_deposit",
+                    "purchase": 0,
+                    "invested": 650000.0,
+                    "note": "Smart Sweep (>30k)"
+                },
+                {
+                    "type": "auto_deposit",
+                    "purchase": 0,
+                    "invested": 11000.0,
+                    "note": "Smart Sweep (>10k)"
+                },
+                {
+                    "type": "auto_deposit",
+                    "purchase": 0,
+                    "invested": 10.0,
+                    "note": "Smart Sweep (>10k)"
+                },
+                {
+                    "type": "auto_deposit",
+                    "purchase": 0,
+                    "invested": 100.0,
+                    "note": "Smart Sweep (>10k)"
+                },
+                {
+                    "type": "auto_deposit",
+                    "purchase": 0,
+                    "invested": 100.0,
+                    "note": "Smart Sweep (>10k)"
+                },
+                {
+                    "type": "round_up",
+                    "purchase": 100.0,
+                    "invested": 100.0
+                },
+                {
+                    "type": "round_up",
+                    "purchase": 10000.0,
+                    "invested": 100.0
+                },
+                {
+                    "type": "round_up",
+                    "purchase": 100.0,
+                    "invested": 100.0
+                },
+                {
+                    "type": "round_up",
+                    "purchase": 100.0,
+                    "invested": 100.0
+                },
+                {
+                    "type": "round_up",
+                    "purchase": 100.0,
+                    "invested": 100.0
+                }
+            ],
+            "portfolio_history": [
+                {
+                    "time": "18:00:23",
+                    "value": 650000.0
+                },
+                {
+                    "time": "18:00:30",
+                    "value": 656500.0
+                },
+                {
+                    "time": "18:00:49",
+                    "value": 663065.0
+                },
+                {
+                    "time": "18:09:39",
+                    "value": 663728.06
+                },
+                {
+                    "time": "18:09:45",
+                    "value": 664391.79
+                },
+                {
+                    "time": "18:09:46",
+                    "value": 665056.18
+                },
+                {
+                    "time": "18:09:47",
+                    "value": 665721.24
+                },
+                {
+                    "time": "18:09:48",
+                    "value": 666386.96
+                },
+                {
+                    "time": "18:09:49",
+                    "value": 667053.35
+                },
+                {
+                    "time": "18:09:51",
+                    "value": 667720.4
+                },
+                {
+                    "time": "18:09:51",
+                    "value": 668388.12
+                },
+                {
+                    "time": "18:09:58",
+                    "value": 669056.51
+                },
+                {
+                    "time": "18:09:59",
+                    "value": 669725.57
+                },
+                {
+                    "time": "18:10:00",
+                    "value": 670395.29
+                },
+                {
+                    "time": "18:10:01",
+                    "value": 671065.69
+                },
+                {
+                    "time": "18:10:02",
+                    "value": 671736.75
+                },
+                {
+                    "time": "18:10:02",
+                    "value": 672408.49
+                },
+                {
+                    "time": "18:10:03",
+                    "value": 673080.9
+                },
+                {
+                    "time": "18:10:03",
+                    "value": 673753.98
+                },
+                {
+                    "time": "18:10:07",
+                    "value": 674427.73
+                },
+                {
+                    "time": "18:10:09",
+                    "value": 675102.16
+                },
+                {
+                    "time": "18:10:10",
+                    "value": 675777.26
+                },
+                {
+                    "time": "18:10:11",
+                    "value": 676453.04
+                },
+                {
+                    "time": "18:10:12",
+                    "value": 677129.49
+                },
+                {
+                    "time": "18:10:12",
+                    "value": 677806.62
+                },
+                {
+                    "time": "18:10:13",
+                    "value": 678484.43
+                },
+                {
+                    "time": "18:10:14",
+                    "value": 679162.92
+                },
+                {
+                    "time": "18:10:14",
+                    "value": 679842.08
+                },
+                {
+                    "time": "18:10:15",
+                    "value": 680521.92
+                },
+                {
+                    "time": "18:10:16",
+                    "value": 681202.44
+                },
+                {
+                    "time": "18:22:27",
+                    "value": 681351.41
+                },
+                {
+                    "time": "18:22:47",
+                    "value": 681351.41
+                },
+                {
+                    "time": "18:23:02",
+                    "value": 681355.33
+                },
+                {
+                    "time": "18:23:27",
+                    "value": 681355.33
+                },
+                {
+                    "time": "18:23:35",
+                    "value": 681355.33
+                },
+                {
+                    "time": "18:24:04",
+                    "value": 681355.33
+                },
+                {
+                    "time": "18:24:08",
+                    "value": 681413.51
+                },
+                {
+                    "time": "18:24:10",
+                    "value": 681561.07
+                },
+                {
+                    "time": "18:24:11",
+                    "value": 681666.92
+                },
+                {
+                    "time": "18:24:11",
+                    "value": 681651.99
+                },
+                {
+                    "time": "18:24:12",
+                    "value": 681869.74
+                },
+                {
+                    "time": "18:24:13",
+                    "value": 682045.71
+                },
+                {
+                    "time": "18:24:13",
+                    "value": 682542.56
+                },
+                {
+                    "time": "18:24:14",
+                    "value": 683303.88
+                },
+                {
+                    "time": "18:24:14",
+                    "value": 683680.95
+                },
+                {
+                    "time": "18:24:14",
+                    "value": 684226.57
+                },
+                {
+                    "time": "18:24:15",
+                    "value": 684460.32
+                },
+                {
+                    "time": "18:24:15",
+                    "value": 684663.68
+                },
+                {
+                    "time": "18:24:16",
+                    "value": 684651.43
+                },
+                {
+                    "time": "18:24:16",
+                    "value": 684673.71
+                },
+                {
+                    "time": "18:24:17",
+                    "value": 685162.17
+                },
+                {
+                    "time": "18:24:17",
+                    "value": 685216.4
+                },
+                {
+                    "time": "18:24:17",
+                    "value": 685879.84
+                },
+                {
+                    "time": "18:24:18",
+                    "value": 686497.21
+                },
+                {
+                    "time": "18:24:19",
+                    "value": 686908.3
+                },
+                {
+                    "time": "18:24:20",
+                    "value": 686772.56
+                },
+                {
+                    "time": "18:24:21",
+                    "value": 687119.96
+                },
+                {
+                    "time": "18:24:22",
+                    "value": 687045.06
+                },
+                {
+                    "time": "18:24:22",
+                    "value": 687739.98
+                },
+                {
+                    "time": "18:24:23",
+                    "value": 688214.81
+                },
+                {
+                    "time": "18:24:24",
+                    "value": 688101.28
+                },
+                {
+                    "time": "18:24:27",
+                    "value": 688411.89
+                },
+                {
+                    "time": "18:35:28",
+                    "value": 688511.89
+                },
+                {
+                    "time": "2026-05-25T19:07:14.172733",
+                    "value": 688611.89
+                },
+                {
+                    "time": "2026-05-25T20:05:17.770906",
+                    "value": 688711.89
+                },
+                {
+                    "time": "2026-05-25T20:05:23.627174",
+                    "value": 688811.89
+                },
+                {
+                    "time": "2026-05-25T20:05:29.313724",
+                    "value": 688911.89
+                },
+                {
+                    "time": "2026-05-25T20:24:47.198663",
+                    "value": 688911.89
+                }
+            ],
+            "level": 1,
+            "exp": 50,
+            "goal": {
+                "name": "Ноутбук",
+                "target": 250000
+            },
+            "investment_mode": "conservative",
+            "safe_mode": true,
+            "linked_cards": [],
+            "streak": 1,
+            "last_active": "2026-05-25",
+            "deposit": 11210.0,
+            "goals": []
+        },
+        "security": {
+            "pin_enabled": false,
+            "biometrics_sim": false
+        }
+    }
+}

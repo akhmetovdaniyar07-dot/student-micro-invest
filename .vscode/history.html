@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>История транзакций - StudentInvest</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        :root { --primary: #000; --bg: #fff; --card-bg: #f8f9fa; --text: #000; --border: #e0e0e0; }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 1.1rem; }
+        .navbar { border-bottom: 1px solid var(--border); padding: 1rem 0; }
+        .glass-card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border); padding: 24px; }
+        .type-badge { font-size: 0.7rem; text-transform: uppercase; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg sticky-top mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="font-weight: 900; color: #0052FF; letter-spacing: 1px; font-size: 2.25rem;">STUDENT.INVEST</a>
+            <div class="d-flex">
+                <a href="/" class="nav-link me-3"><i class="bi bi-house"></i> Главная</a>
+                <a href="/leaderboard" class="nav-link me-3"><i class="bi bi-trophy"></i> Рейтинг</a>
+                <a href="/logout" class="btn btn-sm btn-outline-danger">Выход</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">Полная история</h2>
+            <button class="btn btn-sm btn-outline-dark" onclick="window.print()"><i class="bi bi-download"></i> Экспорт</button>
+        </div>
+
+        <div class="glass-card">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Тип</th>
+                        <th>Покупка</th>
+                        <th class="text-end">Инвестиция</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in history|reverse %}
+                    <tr>
+                        <td class="text-muted small">{{ item.get('time', 'Не указано') }}</td>
+                        <td>
+                            {% if item.type == 'auto_deposit' %}
+                                <span class="badge bg-primary type-badge">Smart Sweep</span>
+                            {% elif item.type == 'round_up' %}
+                                <span class="badge bg-success type-badge">Округление</span>
+                            {% elif item.type == 'transfer_out' %}
+                                <span class="badge bg-danger type-badge">Перевод (Исх.)</span>
+                            {% elif item.type == 'transfer_in' %}
+                                <span class="badge bg-info type-badge">Перевод (Вх.)</span>
+                            {% else %}
+                                <span class="badge bg-secondary type-badge">{{ item.type }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ item.purchase if item.purchase > 0 else '—' }} ₸</td>
+                        <td class="text-end fw-bold text-success">+{{ item.invested }} ₸</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer class="py-4 mt-auto border-top">
+        <div class="container text-center text-muted small">
+            <div class="mb-2">
+                <span style="font-weight: 900; color: #0052FF; letter-spacing: 0.5px; font-size: 1.5rem;">STUDENT.INVEST</span> — Инвестируй в свое будущее с каждой покупки.
+            </div>
+            <div>© 2024 История ваших достижений.</div>
+        </div>
+    </footer>
+</body>
+</html>

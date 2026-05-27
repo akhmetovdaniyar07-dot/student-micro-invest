@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Micro-Invest</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        :root { 
+            --primary: #000000; --secondary: #666666; --bg: #ffffff; 
+            --card-bg: #f8f9fa; --text: #000000; --border: #e0e0e0;
+        }
+        [data-theme="dark"] {
+            --primary: #3b82f6; --bg: #0f172a; --card-bg: #1e293b; 
+            --text: #f1f5f9; --border: #334155; --secondary: #94a3b8;
+        }
+        body { background-color: var(--bg); color: var(--text); transition: all 0.3s ease; font-family: 'Inter', sans-serif; font-size: 1.1rem; }
+        .navbar { border-bottom: 1px solid var(--border); background: var(--bg); padding: 1rem 0; }
+        .nav-link { color: var(--text); }
+        .glass-card { 
+            background: var(--card-bg); border-radius: 28px; 
+            border: none; padding: 30px; 
+            margin-bottom: 30px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.07);
+        }
+        .balance-value { font-weight: 800; font-size: 2.5rem; letter-spacing: -1.5px; margin-bottom: 0; }
+        .btn-dark-toggle { cursor: pointer; font-size: 1.5rem; }
+        .safe-mode-banner { background: #fff3cd; color: #856404; padding: 15px; border-radius: 15px; font-size: 0.9rem; border: 1px solid #ffeeba; }
+        .btn-primary { background: linear-gradient(135deg, #0052FF 0%, #0035B0 100%); border: none; color: #fff; border-radius: 15px; font-weight: 600; }
+        [data-theme="dark"] .btn-primary { background: #fff; color: #000; }
+        .progress { background: var(--border); }
+        .form-control { border: 1px solid var(--border); background: var(--bg); color: var(--text); border-radius: 12px; padding: 12px; }
+        
+        /* Разделитель (Барьер) */
+        .section-divider { border-top: 2px solid var(--border); margin: 40px 0; position: relative; }
+        .section-divider span { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--bg); padding: 0 20px; color: var(--secondary); font-size: 0.8rem; font-weight: bold; text-transform: uppercase; }
+        
+        /* Исправление сетки календаря */
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; gap: 2px; }
+        .calendar-weekday { font-size: 0.7rem; font-weight: bold; color: var(--secondary); margin-bottom: 5px; }
+        .calendar-day { font-size: 0.75rem; padding: 5px 0; border-radius: 8px; transition: all 0.2s; min-height: 30px; display: flex; align-items: center; justify-content: center; }
+        .calendar-day.active { background: var(--primary); color: #fff; font-weight: bold; }
+        
+        /* Анимации для карточек */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-card { animation: fadeInUp 0.6s ease-out forwards; }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg sticky-top mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#" style="font-weight: 900; color: #0052FF; letter-spacing: 1px; font-size: 2.25rem;">STUDENT.INVEST</a>
+            <div class="d-flex align-items-center">
+                <a href="/" class="nav-link me-3"><i class="bi bi-house"></i> Главная</a>
+                <a href="/messages" class="nav-link me-3"><i class="bi bi-chat-dots"></i> Сообщения</a>
+                <a href="/chat" class="nav-link me-3"><i class="bi bi-robot"></i> AI Чат</a>
+                <a href="/services" class="nav-link me-3"><i class="bi bi-grid"></i> Сервисы</a>
+                <a href="/profile" class="nav-link me-3"><i class="bi bi-person-circle"></i> Мой счет</a>
+                <a href="/leaderboard" class="nav-link me-3"><i class="bi bi-trophy"></i> Рейтинг</a>
+                <a href="/help" class="nav-link me-3 text-primary" title="Помощь"><i class="bi bi-question-circle-fill"></i></a>
+                <i class="bi bi-moon-stars-fill btn-dark-toggle me-3" id="themeToggle"></i>
+                <a href="/logout" class="btn btn-sm btn-outline-danger">Выход</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% if pushes %}
+        <div class="push-container mb-3">
+            {% for push in pushes %}
+            <div class="alert alert-dark border-primary shadow-sm small py-2 animate__animated animate__fadeInRight">
+                <i class="bi bi-lightning-fill text-warning"></i> {{ push }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if data.safe_mode and data.balance < 2000 %}
+        <div class="safe-mode-banner mb-3 text-center">
+            <i class="bi bi-shield-lock-fill"></i> <strong>Student Safe Mode активен:</strong> Баланс низкий, инвестиции автоматически уменьшены.
+        </div>
+        {% endif %}
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div class="row mb-4 animate-card">
+            <div class="col-md-6">
+                <h2 class="fw-bold m-0">{{ profile.nickname or profile.full_name or "Пользователь" }}</h2>
+                <p class="text-muted">
+                    <span class="badge bg-light text-dark border"><i class="bi bi-fire text-danger"></i> Серия: {{ data.streak }} дн.</span>
+                    <span class="badge bg-dark badge-rank">{{ badge.icon }} {{ badge.name }}</span>
+                </p>
+            </div>
+            <div class="col-md-6 text-end">
+                <div class="btn-group">
+                    <button class="btn btn-outline-dark btn-sm" onclick="filterChart('day', this)">День</button>
+                    <button class="btn btn-dark btn-sm" onclick="filterChart('week', this)">Неделя</button>
+                    <button class="btn btn-outline-dark btn-sm" onclick="filterChart('month', this)">Месяц</button>
+                    <button class="btn btn-outline-dark btn-sm" onclick="filterChart('year', this)">Год</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4 animate-card delay-1">
+            <div class="col-12">
+                <div class="glass-card text-center bg-primary text-white border-0 shadow-lg">
+                    <h6 class="opacity-75 small text-uppercase fw-bold">Ваш общий капитал</h6>
+                    <h1 class="display-3 fw-bold m-0" id="totalAssetsDisplay" style="letter-spacing: -2px;">0.00 ₸</h1>
+                    <div class="small mt-2 opacity-75">Включая баланс, инвест-фонд и депозиты</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-divider"><span>Аналитика и инструменты</span></div>
+
+        <!-- Блок симуляции округления (Самая важная часть) -->
+        <div class="row mb-4 animate-card delay-2">
+            <div class="col-12">
+                <div class="glass-card border-primary" style="background: linear-gradient(to right, var(--card-bg), #f0f7ff);">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 class="fw-bold mb-1"><i class="bi bi-cart-check"></i> Симуляция покупки (Округление)</h5>
+                            <p class="text-muted small mb-0">Введите сумму чека, чтобы увидеть, как остаток уйдет в инвестиции. Ваш лимит: <strong>{{ data.rounding_limit }} ₸</strong></p>
+                        </div>
+                        <div class="col-md-4">
+                            <form action="/purchase" method="post" class="input-group">
+                                <input type="number" name="amount" step="0.01" class="form-control" placeholder="Сумма (напр. 870)" required>
+                                <button class="btn btn-primary px-4" type="submit">Оплатить</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- График -->
+            <div class="col-md-8 animate-card delay-3">
+                <div class="glass-card">
+                    <div class="d-flex justify-content-between">
+                        <h5>Динамика портфеля</h5>
+                        <span class="text-success fw-bold"><i class="bi bi-graph-up"></i> +{{ "%.2f"|format(growth_pct) }}%</span>
+                    </div>
+                    <canvas id="portfolioChart" height="130"></canvas>
+                </div>
+                <div class="glass-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="m-0">Последние транзакции</h5>
+                        <a href="/history" class="small text-decoration-none">См. все</a>
+                    </div>
+                    <table class="table table-sm small">
+                        <tbody>
+                            {% for item in data.history[-5:]|reverse %}
+                            <tr>
+                                <td>{{ 'Smart Sweep' if item.type == 'auto_deposit' else 'Округление' }}</td>
+                                <td>{{ item.purchase }} ₸</td>
+                                <td class="text-success">+{{ item.invested }} ₸</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Боковая панель -->
+            <div class="col-md-4 animate-card delay-3">
+                <div class="glass-card border-primary bg-light bg-opacity-10">
+                    <h6 class="fw-bold"><i class="bi bi-cpu"></i> AI Совет дня</h6>
+                    <p class="small m-0">"{{ advice }}"</p>
+                </div>
+                
+                <div class="glass-card">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-calendar3"></i> Календарь активности</h6>
+                    <div class="calendar-grid mb-1">
+                        <div class="calendar-weekday">Пн</div><div class="calendar-weekday">Вт</div><div class="calendar-weekday">Ср</div>
+                        <div class="calendar-weekday">Чт</div><div class="calendar-weekday">Пт</div><div class="calendar-weekday">Сб</div>
+                        <div class="calendar-weekday">Вс</div>
+                    </div>
+                    <div id="calendarGrid" class="calendar-grid mb-3"></div>
+                    <button class="btn btn-outline-dark btn-sm w-100" data-bs-toggle="modal" data-bs-target="#calendarModal">
+                        Открыть календарь
+                    </button>
+                </div>
+
+                <div class="glass-card">
+                    <h6 class="fw-bold mb-3">🎯 Цели накоплений</h6>
+                    {% for goal in data.goals %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span>{{ goal.icon }} {{ goal.name }}</span>
+                            <span class="text-muted">{{ (goal.current / goal.target * 100)|int }}%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-primary" style="width: {{ (goal.current / goal.target * 100)|int }}%"></div>
+                        </div>
+                        <div class="text-end small text-muted" style="font-size: 0.7rem;">
+                            {{ goal.current }} / {{ goal.target }} ₸
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Чек (Квитанция) -->
+    {% if session.get('last_receipt') %}
+    <div class="modal fade show" id="receiptModal" tabindex="-1" style="display: block; background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow-lg">
+                <div class="modal-body p-4 text-center">
+                    <div class="mb-3 text-success display-4"><i class="bi bi-check-circle-fill"></i></div>
+                    <h4 class="fw-bold">Транзакция успешна</h4>
+                    
+                    {% if session['last_receipt'].get('leveled_up') %}
+                    <div class="alert alert-warning py-2 mb-3 border-0 rounded-4">
+                        <h5 class="m-0">🎊 НОВЫЙ УРОВЕНЬ: {{ session['last_receipt']['new_level'] }} 🎊</h5>
+                    </div>
+                    {% endif %}
+                    
+                    <p class="text-muted small">ID: {{ session['last_receipt']['id'] }}</p>
+                    
+                    <div class="bg-light p-3 rounded-4 my-3 text-start">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Сумма покупки:</span>
+                            <span class="fw-bold">{{ "%.2f"|format(session['last_receipt']['amount']) }} ₸</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Округлено до:</span>
+                            <span class="fw-bold">{{ "%.2f"|format(session['last_receipt']['rounded']) }} ₸</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between text-success fw-bold">
+                            <span>Инвестировано:</span>
+                            <span>+{{ "%.2f"|format(session['last_receipt']['invested']) }} ₸</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-dark w-100 py-2 rounded-3" onclick="closeReceipt()">Отлично</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Модалки -->
+    <div class="modal fade" id="depositModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form action="/deposit" method="post">
+                    <div class="modal-body">
+                        <label class="mb-2">Сумма пополнения</label>
+                        <input type="number" name="amount" class="form-control" required>
+                    </div>
+                    <div class="modal-footer border-0"><button class="btn btn-primary w-100">Пополнить баланс</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="withdrawModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form action="/withdraw" method="post">
+                    <div class="modal-body">
+                        <label class="mb-2">Сумма вывода</label>
+                        <input type="number" name="amount" class="form-control" required>
+                    </div>
+                    <div class="modal-footer border-0"><button class="btn btn-danger w-100">Вывести средства</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal для привязки карты -->
+    <div class="modal fade" id="linkCardModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: var(--bg); color: var(--text); border-radius: 20px; border: 1px solid var(--border);">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Привязка банковской карты</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/link_card" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="small mb-1">Номер карты</label>
+                            <input type="text" name="card_number" class="form-control" placeholder="0000 0000 0000 0000" required maxlength="19">
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="small mb-1">Срок действия</label>
+                                <input type="text" name="expiry" class="form-control" placeholder="MM/YY" required maxlength="5">
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="small mb-1">CVV</label>
+                                <input type="password" name="cvv" class="form-control" placeholder="***" required maxlength="3">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="small mb-1">Владелец карты</label>
+                            <input type="text" name="card_name" class="form-control" placeholder="IVAN IVANOV" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="submit" class="btn btn-primary w-100">Привязать карту</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal для календаря -->
+    <div class="modal fade" id="calendarModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: var(--bg); color: var(--text); border-radius: 20px; border: 1px solid var(--border);">
+                <div class="modal-header border-0 d-flex justify-content-between align-items-center">
+                    <button class="btn btn-sm btn-link text-dark" onclick="changeMonth(-1)"><i class="bi bi-chevron-left"></i></button>
+                    <h5 class="modal-title fw-bold" id="calendarTitle">Месяц Год</h5>
+                    <button class="btn btn-sm btn-link text-dark" onclick="changeMonth(1)"><i class="bi bi-chevron-right"></i></button>
+                </div>
+                <div class="modal-body pt-0 px-4">
+                    <!-- Заголовки в модалке теперь тоже в сетке -->
+                    <div class="calendar-grid mb-2">
+                        <div class="calendar-weekday">Пн</div><div class="calendar-weekday">Вт</div><div class="calendar-weekday">Ср</div>
+                        <div class="calendar-weekday">Чт</div><div class="calendar-weekday">Пт</div><div class="calendar-weekday">Сб</div>
+                        <div class="calendar-weekday">Вс</div>
+                    </div>
+                    <div id="calendarGridModal" class="calendar-grid" style="gap: 10px;">
+                        <!-- Заполнится через JS -->
+                    </div>
+                    <div class="mt-4 p-3 rounded-4 bg-light small text-dark border d-flex align-items-center">
+                        <div style="width: 12px; height: 12px; background: #27AE60; border-radius: 3px; margin-right: 10px;"></div>
+                        <span>Дни с инвестиционной активностью</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="py-4 mt-5 border-top" style="background: var(--bg); transition: background 0.3s ease;">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start">
+                    <span style="font-weight: 900; color: #0052FF; letter-spacing: 0.5px; font-size: 1.5rem;">STUDENT.INVEST</span>
+                    <p class="text-muted small mb-0">© 2024 Все права защищены. Образовательный проект для студентов.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
+                    <a href="#" class="text-muted me-3"><i class="bi bi-telegram fs-5"></i></a>
+                    <a href="#" class="text-muted me-3"><i class="bi bi-instagram fs-5"></i></a>
+                    <a href="#" class="text-muted"><i class="bi bi-envelope fs-5"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const allHistory = {{ all_history|tojson }};
+        let myChart;
+        let calendarDate = new Date();
+
+        // Анимация чисел (Счетчик)
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const current = (progress * (end - start) + start).toFixed(2);
+                obj.innerHTML = current.toLocaleString() + " ₸";
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Запуск анимации общего капитала при загрузке
+        animateValue(document.getElementById("totalAssetsDisplay"), 0, {{ total_assets }}, 1500);
+
+        // Помощник для обработки дат (включая старый формат HH:MM:SS)
+        function parseDate(dateStr) {
+            let d = new Date(dateStr);
+            if (isNaN(d) && dateStr.includes(':')) {
+                const parts = dateStr.split(':');
+                d = new Date();
+                d.setHours(parts[0], parts[1], parts[2] || 0);
+            }
+            return d;
+        }
+
+        function changeMonth(delta) {
+            calendarDate.setMonth(calendarDate.getMonth() + delta);
+            initCalendar(calendarDate);
+        }
+
+        function filterChart(period, btn) {
+            document.querySelectorAll('.btn-group .btn').forEach(b => b.className = 'btn btn-outline-dark btn-sm');
+            btn.className = 'btn btn-dark btn-sm';
+            
+            const now = new Date();
+            const ms = { 'day': 86400000, 'week': 604800000, 'month': 2592000000, 'year': 31536000000 };
+            
+            let runningTotal = 0;
+            let chartData = [];
+            let chartLabels = [];
+
+            allHistory.forEach(item => {
+                runningTotal += item.invested; // Используем корректное поле invested
+                const d = parseDate(item.time);
+                
+                // Фильтрация: учитываем разницу во времени между сервером и клиентом
+                const diff = now - d;
+                if (diff < (ms[period] || Infinity) && diff > -60000) { 
+                    chartData.push(runningTotal.toFixed(2));
+                    let label = d.toLocaleDateString();
+                    if (period === 'day') label = d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    chartLabels.push(label);
+                }
+            });
+
+            myChart.data.labels = chartLabels;
+            myChart.data.datasets[0].data = chartData;
+            myChart.update();
+        }
+
+        function initCalendar(date = new Date()) {
+            const grid = document.getElementById('calendarGrid');
+            const modalGrid = document.getElementById('calendarGridModal');
+            const title = document.getElementById('calendarTitle');
+            
+            const month = date.getMonth();
+            const year = date.getFullYear();
+            const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+              "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+            ];
+            
+            if(title) title.innerText = `${monthNames[month]} ${year}`;
+
+            const activeDays = new Set();
+            allHistory.forEach(item => {
+                const d = parseDate(item.time);
+                if (!isNaN(d) && d.getMonth() === month && d.getFullYear() === year) activeDays.add(d.getDate());
+            });
+
+            const today = new Date();
+
+            const renderGrid = (container, isModal = false) => {
+                if(!container) return;
+                container.innerHTML = '';
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                let startOffset = firstDay === 0 ? 6 : firstDay - 1;
+                
+                for (let i = 0; i < startOffset; i++) container.appendChild(document.createElement('div'));
+                for (let i = 1; i <= daysInMonth; i++) {
+                    const div = document.createElement('div');
+                    div.className = `calendar-day ${i === today.getDate() && month === today.getMonth() && year === today.getFullYear() ? 'active' : ''}`;
+                    if (activeDays.has(i)) div.style.borderBottom = isModal ? "3px solid #27AE60" : "2px solid #27AE60";
+                    div.innerText = i;
+                    container.appendChild(div);
+                }
+            };
+
+            renderGrid(grid);
+            renderGrid(modalGrid, true);
+        }
+        initCalendar();
+
+        // Тема ауыстырғыш
+        const body = document.body;
+        const toggle = document.getElementById('themeToggle');
+        
+        // Инициализация темы из localStorage
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        body.setAttribute('data-theme', savedTheme);
+        if (savedTheme === 'dark') {
+            toggle.classList.replace('bi-moon-stars-fill', 'bi-sun-fill');
+        }
+
+        toggle.addEventListener('click', () => {
+            const current = body.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            body.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            toggle.classList.toggle('bi-moon-stars-fill');
+            toggle.classList.toggle('bi-sun-fill');
+        });
+
+        function closeReceipt() {
+            const modal = document.getElementById('receiptModal');
+            if(modal) modal.style.display = 'none';
+            // Очищаем сессию через fetch, чтобы не показывать чек снова при обновлении
+            fetch('/chat/clear_receipt'); 
+        }
+
+        // Преобразуем серверные даты в понятный формат при загрузке
+        const initialLabels = {{ chart_labels|tojson }}.map(l => parseDate(l).toLocaleDateString());
+
+        const ctx = document.getElementById('portfolioChart').getContext('2d');
+        myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: initialLabels,
+                datasets: [{
+                    label: 'Стоимость портфеля (₸)',
+                    data: {{ chart_values|tojson }},
+                    borderColor: '#27AE60',
+                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#27AE60',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: false, grid: { display: false } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

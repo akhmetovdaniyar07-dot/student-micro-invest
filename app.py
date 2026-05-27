@@ -19,7 +19,7 @@ app = Flask(__name__, template_folder=base_dir, static_folder=base_dir)
 # Важно для Vercel: переменная 'application' должна быть доступна на уровне модуля
 application = app
 
-print(f">>> Application starting from: {base_dir} in {'Vercel' if os.getenv('VERCEL') else 'Local'} environment.")
+print(f">>> BOOTING: Python Flask App on Vercel. Directory: {base_dir}")
 
 # Проверка SECRET_KEY
 app.secret_key = os.getenv('SECRET_KEY')

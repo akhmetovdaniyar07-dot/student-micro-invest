@@ -45,7 +45,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
-print(f">>> Database URI: {db_url.split('@')[-1] if '@' in db_url else 'SQLite'}")
+print(f">>> Database URI: {db_url.split('@')[-1] if '@' in db_url else 'SQLite (/tmp)'}")
 
 # Создаем таблицы, если их нет
 with app.app_context():
@@ -55,7 +55,7 @@ with app.app_context():
         db.session.execute(db.text('SELECT 1'))
         print(">>> Database initialized and connected successfully.")
     except Exception as e:
-        print(f">>> Database initialization or connection FAILED: {e}")
+        print(f">>> Database connection ERROR: {e}. If using SQLite on Vercel, ensure the path is /tmp/app.db.")
 
 openai_api_key = os.getenv("OPENAI_API_KEY")
 if not openai_api_key:
@@ -105,9 +105,11 @@ def index():
     chart_labels = []
     chart_values = []
     current_sum = 0
-    for h in finance['history']:
-        current_sum += h['invested']
-        chart_labels.append(h['time'])
+    
+    history_data = finance.get('history', [])
+    for h in history_data:
+        current_sum += h.get('invested', 0)
+        chart_labels.append(h.get('time', ''))
         chart_values.append(round(current_sum, 2))
     
     # Ограничиваем для первого показа последними 20 точками

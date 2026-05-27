@@ -16,7 +16,7 @@ load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
 base_dir = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__, template_folder=base_dir, static_folder=base_dir)
 
-# Важно для Vercel: переменная 'app' должна быть доступна на уровне модуля
+# Важно для Vercel: переменная 'application' должна быть доступна на уровне модуля
 application = app
 
 print(f">>> Application starting from: {base_dir} in {'Vercel' if os.getenv('VERCEL') else 'Local'} environment.")
@@ -25,7 +25,7 @@ print(f">>> Application starting from: {base_dir} in {'Vercel' if os.getenv('VER
 app.secret_key = os.getenv('SECRET_KEY')
 if not app.secret_key:
     if os.getenv('VERCEL'):
-        app.secret_key = "temporary_key_for_build" # Временный ключ для фазы сборки
+        raise RuntimeError("Критическая ошибка: SECRET_KEY не найден в переменных окружения Vercel!")
     print("WARNING: SECRET_KEY not found in environment variables. Using fallback.")
     app.secret_key = 'fallback_secret_key_for_dev' # Fallback for local development if .env is missing
 
